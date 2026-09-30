@@ -1,97 +1,109 @@
 import { Request, Response } from "express";
 import { Product } from "../model/productModel";
 
-// Temporary database using an array
-let products: Product[] = [
-    {
-        id: 1,
-        name: "Laptop",
-        price: 850000,
-        category: "Electronics"
-    },
-    {
-        id: 2,
-        name: "Keyboard",
-        price: 25000,
-        category: "Accessories"
-    }
-];
-
 // GET all products
-export const getProducts = (req: Request, res: Response) => {
-    res.json(products);
+export const getProduct = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find();
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to get products",
+    });
+  }
 };
 
 // GET one product
-export const getProductById = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-
-    const product = products.find(product => product.id === id);
+export const getProductById = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
-        return res.status(404).json({
-            message: "Product not found"
-        });
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
     }
 
-    res.json(product);
+    return res.status(200).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to get product",
+    });
+  }
 };
 
 // CREATE product
-export const createProduct = (req: Request, res: Response) => {
-    const { name, price, category } = req.body;
+export const newProduct = async (req: Request, res: Response) => {
+  try {
+    const { name, category, price } = req.body;
 
-    const newProduct: Product = {
-        id: products.length + 1,
-        name,
-        price,
-        category
-    };
+    if (!name || !category || price === undefined) {
+      return res.status(400).json({
+        message: "name, category, price required",
+      });
+    }
 
-    products.push(newProduct);
+    const product = await Product.create({
+      name,
+      category,
+      price,
+    });
 
-    res.status(201).json(newProduct);
+    return res.status(201).json({
+      message: "Product Created",
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to create product",
+    });
+  }
 };
 
 // UPDATE product
-export const updateProduct = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
-
-    const product = products.find(product => product.id === id);
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!product) {
-        return res.status(404).json({
-            message: "Product not found"
-        });
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
     }
 
-    const { name, price, category } = req.body;
-
-    product.name = name;
-    product.price = price;
-    product.category = category;
-
-    res.json(product);
+    return res.status(200).json({
+      message: "Product Updated",
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update product",
+    });
+  }
 };
 
 // DELETE product
-export const deleteProduct = (req: Request, res: Response) => {
-    const id = Number(req.params.id);
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
 
-    const productIndex = products.findIndex(
-        product => product.id === id
-    );
-
-    if (productIndex === -1) {
-        return res.status(404).json({
-            message: "Product not found"
-        });
+    if (!product) {
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
     }
 
-    const deletedProduct = products.splice(productIndex, 1);
-
-    res.json({
-        message: "Product deleted successfully",
-        product: deletedProduct[0]
+    return res.status(200).json({
+      message: "Product Deleted",
+      product,
     });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to delete product",
+    });
+  }
 };

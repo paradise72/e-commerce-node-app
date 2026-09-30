@@ -1,10 +1,12 @@
 import express from "express";
+import dotenv from "dotenv";
 import productRoutes from "./routes/productRoute";
-
+import {connectDB} from "./config/database";
+dotenv.config();
+connectDB();
 const app = express();
 
-const port = 3000;
-
+const port = process.env.PORT;
 // Allow Express to read JSON
 app.use(express.json());
 
