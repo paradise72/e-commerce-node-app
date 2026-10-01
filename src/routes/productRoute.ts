@@ -1,5 +1,5 @@
 import { Router } from "express";
-
+import { authenticate } from "../middleware/authMiddleware";
 import {
     getProduct,
     getProductById,
@@ -9,7 +9,7 @@ import {
 } from "../controller/productController";
 
 const router = Router();
-
+router.use(authenticate); // Apply authentication middleware to all routes
 // GET all products
 router.get("/", getProduct);
 
