@@ -1,0 +1,151 @@
+import { Request, Response } from "express";
+import { Product } from "../model/productModel";
+import cloudinary from "../config/cloudinary";
+
+// GET all products
+export const getProduct = async (req: Request, res: Response) => {
+  try {
+    const products = await Product.find();
+
+    return res.status(200).json(products);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to get products",
+    });
+  }
+};
+
+// Function to upload image to Cloudinary
+const uploadToCloudinary = (
+    buffer: Buffer
+): Promise<any> => {
+    return new Promise((resolve, reject) => {
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: "products",
+            },
+            (error, result) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(result);
+                }
+            }
+        );
+
+        uploadStream.end(buffer);
+    });
+};
+
+// GET one product
+export const getProductById = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findById(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
+    }
+
+    return res.status(200).json(product);
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to get product",
+    });
+  }
+};
+
+// CREATE product
+export const newProduct = async (
+    req: Request,
+    res: Response
+) => {
+    try {
+        const { name, description, category, price } = req.body;
+
+        if (!name || !description || !category || !price) {
+            return res.status(400).json({
+                message: "Name, description, category and price are required",
+            });
+        }
+
+           if (!req.file) {
+            return res.status(400).json({
+                message: "Product image is required",
+            });
+        }
+            
+
+        const uploadResult = await uploadToCloudinary(
+            req.file.buffer
+        );
+
+        const product = await Product.create({
+          name,
+          description,
+          category,
+          price,
+          imageUrl: uploadResult.secure_url,
+        
+        });
+        return res.status(201).json({
+            message: "Product created successfully",
+            product,
+        });
+    } catch (error) {
+        console.log(error);
+
+        return res.status(500).json({
+            message: "Server error",
+                  });
+    }
+};
+
+// UPDATE product
+export const updateProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Product Updated",
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to update product",
+    });
+  }
+};
+
+// DELETE product
+export const deleteProduct = async (req: Request, res: Response) => {
+  try {
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    if (!product) {
+      return res.status(404).json({
+        message: "Product Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "Product Deleted",
+      product,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Failed to delete product",
+    });
+  }
+};
+

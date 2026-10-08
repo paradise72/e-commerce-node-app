@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    // Where your TypeScript files are
+    "rootDir": "./src",
+    
+    // Where compiled JavaScript goes
+    "outDir": "./dist",
+    
+    // Use CommonJS modules (for Node.js)
+    "module": "commonjs",
+    
+    // Target ES2020 JavaScript
+    "target": "es2020",
+    
+    // Enable all strict type checking
+    "strict": true,
+    
+    // Better import/export compatibility
+    "esModuleInterop": true,
+    
+    // Skip type checking of declaration files
+    "skipLibCheck": true,
+    
+    // Generate source maps for debugging
+    "sourceMap": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
