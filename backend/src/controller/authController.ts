@@ -40,7 +40,7 @@ export const registeration = async (
       password: hashedPassword,
     });
 
-    await sendWelcomeEmail(user.email, user.name);
+    await sendWelcomeEmailBrevo(user.email, user.name);
 
     return res.status(201).json({
       message: "Registration successful. Welcome email sent.",
@@ -98,7 +98,7 @@ export const login = async (
 
     await user.save();
 
-    await sendOtpEmail(
+    await sendOtpEmailBrevo(
       user.email,
       user.name,
       otp,
@@ -110,7 +110,7 @@ export const login = async (
   } catch (error) {
     console.error(error);
     return res.status(500).json({
-      message: "Login failed",
+      message: "Login failed",error
     });
   }
 };
@@ -268,7 +268,7 @@ export const forgotPassword = async (
     await user.save();
 
     try {
-      await sendResetCodeEmail(user.email, user.name, code);
+      await sendResetCode( user.email, user.name, code);
     } catch (emailError) {
       console.error("Password reset email failed:", emailError);
 

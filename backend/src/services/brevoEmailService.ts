@@ -4,10 +4,11 @@ import {welcomeEmail} from "../template/welcomeTemplate";
 import {brevoEmail} from "../controller/brevoEmailController";
 
 export const sendResetCode = async (
+    email: string,
     name: string, 
     otp: string,)  => {
         await brevoEmail(
-            name,
+            email,
             "Your Password Reset Code",
 
             resetCodeEmail(name, otp)
@@ -16,10 +17,11 @@ export const sendResetCode = async (
 }
 
 export const sendOtpEmailBrevo = async (
+    email: string,
     name: string, 
     otp: string,)  => {
         await brevoEmail(
-            name,
+            email,
             "Your Verification Code",
             otpEmail(name, otp)
         );
